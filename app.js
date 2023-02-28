@@ -4,10 +4,13 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
+const Joi = require('joi');
 
 const ExpressError = require('./utils/ExpressError');
 const catchAsync = require('./utils/catchAsync');
 const Campground = require('./models/campground');
+
+const { campgroundValidate } = require('./joiValidationSchema');
 
 mongoose.set('strictQuery', false);
 
@@ -37,6 +40,14 @@ app.use(methodOverride('_method'));
 // req, res loggin
 app.use(morgan('dev'));
 
+// Middleware fn's
+const validateCampground = (req, res, next) => {
+  const result = campgroundValidate.validate(req.body);
+  if (result.error) {
+    throw new ExpressError(result.error.message, 400);
+  } else next();
+};
+
 app.get('/', (req, res) => {
   res.render('home');
 });
@@ -54,8 +65,10 @@ app.get('/campgrounds/new', (req, res) => {
 // Add
 app.post(
   '/campgrounds',
+  validateCampground,
   catchAsync(async (req, res, next) => {
-    if (!req.body.Campground) throw new ExpressError('Please specify Campground data!', 400);
+    // if (!req.body.Campground) throw new ExpressError('Please specify Campground data!', 400);
+
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -83,6 +96,7 @@ app.get(
 // Update
 app.put(
   '/campgrounds/:id',
+  validateCampground,
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
