@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
-const Joi = require('joi');
 
 const ExpressError = require('./utils/ExpressError');
 const catchAsync = require('./utils/catchAsync');
 const Campground = require('./models/campground');
+const Review = require('./models/review');
 
 const { campgroundValidate } = require('./joiValidationSchema');
 
@@ -37,7 +37,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 // for overriding form methods
 app.use(methodOverride('_method'));
-// req, res loggin
+// req, res Terminal loggings
 app.use(morgan('dev'));
 
 // Middleware fn's
@@ -112,6 +112,18 @@ app.delete(
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+  })
+);
+
+////// Routes for posting reviews
+app.post(
+  '/campgrounds/:id/reviews',
+  catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await Promise.all([review.save(), campground.save()]);
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
