@@ -11,3 +11,10 @@ module.exports.campgroundValidate = Joi.object({
     description: Joi.string().required(),
   }).required(),
 });
+
+module.exports.reviewValidate = Joi.object({
+  review: Joi.object({
+    rating: Joi.number().min(1).max(5).required(),
+    body: Joi.string().required(),
+  }).required(),
+});

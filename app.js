@@ -10,7 +10,8 @@ const catchAsync = require('./utils/catchAsync');
 const Campground = require('./models/campground');
 const Review = require('./models/review');
 
-const { campgroundValidate } = require('./joiValidationSchema');
+const { campgroundValidate, reviewValidate } = require('./joiValidationSchema');
+const review = require('./models/review');
 
 mongoose.set('strictQuery', false);
 
@@ -42,9 +43,16 @@ app.use(morgan('dev'));
 
 // Middleware fn's
 const validateCampground = (req, res, next) => {
-  const result = campgroundValidate.validate(req.body);
-  if (result.error) {
-    throw new ExpressError(result.error.message, 400);
+  const { error } = campgroundValidate.validate(req.body);
+  if (error) {
+    throw new ExpressError(error.message, 400);
+  } else next();
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewValidate.validate(req.body);
+  if (error) {
+    throw new ExpressError(error.message, 400);
   } else next();
 };
 
@@ -118,6 +126,7 @@ app.delete(
 ////// Routes for posting reviews
 app.post(
   '/campgrounds/:id/reviews',
+  validateReview,
   catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
