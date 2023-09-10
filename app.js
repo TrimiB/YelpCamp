@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
+const session = require('express-session');
 
 const ExpressError = require('./utils/ExpressError');
 
@@ -37,8 +38,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 // req, res Terminal loggings
 app.use(morgan('dev'));
-// for serving static files (frontend files)
+// for serving static files from the public dir. (frontend files)
 app.use(express.static(path.join(__dirname, 'public')));
+
+const sessionCongif = {
+  secret: 'thisshouldbeabettersecret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
+};
+app.use(session(sessionCongif));
 
 // Routes
 app.use('/campgrounds', campgrounds);
