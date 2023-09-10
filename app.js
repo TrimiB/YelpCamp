@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 const ExpressError = require('./utils/ExpressError');
 
@@ -41,6 +42,7 @@ app.use(morgan('dev'));
 // for serving static files from the public dir. (frontend files)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// created as session "cookie".
 const sessionCongif = {
   secret: 'thisshouldbeabettersecret',
   resave: false,
@@ -52,6 +54,16 @@ const sessionCongif = {
   },
 };
 app.use(session(sessionCongif));
+
+// Works only in combination with session ^
+app.use(flash());
+// Making the flash message "success" available in the templates.
+// Message comes from creating new Campgroung.
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
 
 // Routes
 app.use('/campgrounds', campgrounds);
