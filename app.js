@@ -37,6 +37,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 // req, res Terminal loggings
 app.use(morgan('dev'));
+// for serving static files (frontend files)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/campgrounds', campgrounds);
