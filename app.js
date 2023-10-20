@@ -6,11 +6,19 @@ const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 
+// Error Middleware
 const ExpressError = require('./utils/ExpressError');
 
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+// Routes
+const userRoutes = require('./routes/users');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+
+// Models
+const User = require('./models/user');
 
 mongoose.set('strictQuery', false);
 
@@ -57,6 +65,14 @@ app.use(session(sessionCongif));
 
 // Works only in combination with session ^
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Making the flash message "success" available in the templates.
 // Message comes from creating new Campgroung.
 app.use((req, res, next) => {
@@ -66,8 +82,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
+app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
 
 app.get('/', (req, res) => {
   res.render('home');
