@@ -9,8 +9,10 @@
       </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item"><%= campground.location %></li>
+        <li class="list-group-item">Submitted by <%= campground.author.username %></li>
         <li class="list-group-item">$<%= campground.price %>/ night</li>
       </ul>
+      <% if (currentUser && campground.author.equals(currentUser)) {%>
       <div class="card-body">
         <a class="card-link btn btn-info" href="/campgrounds/<%= campground._id %>/edit">
           Edit campground
@@ -18,10 +20,12 @@
         <form
           class="d-inline"
           action="/campgrounds/<%= campground._id %>?_method=DELETE"
-          method="POST">
+          method="POST"
+        >
           <button class="btn btn-danger">Delete</button>
         </form>
       </div>
+      <% } %>
       <div class="card-footer text-muted">2 days ago</div>
     </div>
   </div>
@@ -32,7 +36,8 @@
       class="mb-3"
       action="/campgrounds/<%= campground._id %>/reviews"
       method="POST"
-      class="mb-3 validated-form">
+      class="mb-3 validated-form"
+    >
       <div class="mb-3">
         <label class="form-label" for="rating">Rating</label>
         <input class="form-range" type="range" name="review[rating]" id="rating" min="1" max="5" />
@@ -45,7 +50,8 @@
           id="body"
           cols="30"
           rows="3"
-          required></textarea>
+          required
+        ></textarea>
         <div class="valid-feedback">Looks good!</div>
       </div>
       <button class="btn btn-success">submit</button>
@@ -57,7 +63,8 @@
         <p class="card-text">Review: <%= review.body %></p>
         <form
           action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE"
-          method="POST">
+          method="POST"
+        >
           <button class="btn btn-sm btn-danger">Delete</button>
         </form>
       </div>

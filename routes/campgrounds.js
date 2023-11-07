@@ -33,19 +33,22 @@ router.post(
   isLoggedIn,
   validateCampground,
   catchAsync(async (req, res, next) => {
-    // if (!req.body.Campground) throw new ExpressError('Please specify Campground data!', 400);
     const campground = new Campground(req.body.campground);
+    campground.author = req.user._id;
+    console.log(campground);
     await campground.save();
     req.flash('success', 'Successfully created a new campground!');
     res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
+// Get specific campground
 router.get(
   '/:id',
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const campground = await Campground.findById(id).populate('reviews');
+    const campground = await Campground.findById(id).populate('reviews').populate('author');
+    console.log(campground);
     if (!campground) {
       req.flash('error', 'Cannot fint that campground!');
       return res.redirect('/campgrounds');
