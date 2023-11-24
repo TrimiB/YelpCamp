@@ -3,19 +3,11 @@ const router = express.Router();
 
 const ExpressError = require('../utils/ExpressError');
 const catchAsync = require('../utils/catchAsync');
-const { isLoggedIn } = require('../middleware');
+const { isLoggedIn, validateCampground, isAuthor } = require('../middleware');
 
 const Campground = require('../models/campground');
 
 const { campgroundValidate } = require('../joiValidationSchema');
-
-// Middleware functions
-const validateCampground = (req, res, next) => {
-  const { error } = campgroundValidate.validate(req.body);
-  if (error) {
-    throw new ExpressError(error.message, 400);
-  } else next();
-};
 
 router.get('/', async (req, res) => {
   const campgrounds = await Campground.find({});
@@ -60,6 +52,7 @@ router.get(
 router.get(
   '/:id/edit',
   isLoggedIn,
+  isAuthor,
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -75,14 +68,11 @@ router.get(
 router.put(
   '/:id',
   isLoggedIn,
+  isAuthor,
   validateCampground,
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    if (!campground) {
-      req.flash('error', 'Cannot create that campground!');
-      return res.redirect('/campgrounds');
-    }
     req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`);
   })
@@ -91,6 +81,7 @@ router.put(
 router.delete(
   '/:id',
   isLoggedIn,
+  isAuthor,
   catchAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
