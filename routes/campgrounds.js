@@ -7,16 +7,18 @@ const catchAsync = require('../utils/catchAsync');
 const { isLoggedIn, validateCampground, isAuthor } = require('../middleware');
 
 const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${file.originalname.split('.')[0]}-${uniqueSuffix}.${file.mimetype.split('/')[1]}`);
-  },
-});
-const upload = multer({ storage: storage });
+const { storage, cloudinary } = require('../cloudinary');
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, './uploads');
+//   },
+//   filename: function (req, file, cb) {
+//     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+//     cb(null, `${file.originalname.split('.')[0]}-${uniqueSuffix}.${file.mimetype.split('/')[1]}`);
+//   },
+// });
+const upload = multer({ storage });
 
 router
   .route('/')
