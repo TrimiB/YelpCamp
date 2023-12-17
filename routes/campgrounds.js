@@ -25,11 +25,12 @@ router
   // Get all campgrounds
   .get(catchAsync(campground.index))
   // Creating a new campground
-  // .post(isLoggedIn, validateCampground, catchAsync(campground.createCampground));
-  .post(upload.array('image', 4), (req, res) => {
-    console.log(req.body, req.files);
-    res.send(`It worked! 👌`);
-  });
+  .post(
+    isLoggedIn,
+    upload.array('image', 4),
+    validateCampground,
+    catchAsync(campground.createCampground)
+  );
 
 // Get New campground form [Order matters on this line]
 router.get('/new', isLoggedIn, campground.renderNewForm);
