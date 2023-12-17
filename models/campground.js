@@ -25,6 +25,11 @@ const CampgroundSchema = new Schema({
   ],
 });
 
+/**
+ * Deletes all reviews associated with a campground document
+ * after the campground document is deleted.
+ * This ensures reviews are cleaned up and not orphaned.
+ */
 CampgroundSchema.post('findOneAndDelete', async function (doc) {
   if (doc) {
     await Review.deleteMany({ _id: { $in: doc.reviews } });

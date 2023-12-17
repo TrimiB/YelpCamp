@@ -1,18 +1,28 @@
 const Campground = require('../models/campground');
 
-// Finding all campgrounds and rendering them
+/**
+ * Finds all campgrounds from the database, renders the campground index page.
+ */
 module.exports.index = async (req, res) => {
   const campgrounds = await Campground.find({});
   res.render('campgrounds/index', { campgrounds });
 };
 
-// Simply rendering the NEW campgrounds form
+/**
+ * Renders the new campground form.
+ */
 module.exports.renderNewForm = (req, res) => {
   res.render('campgrounds/new');
 };
 
-/** Crating new Campground, adding author to Campground, Saving and redirecting 
-    to the created Campground */
+/**
+ * Creates a new campground from request data, saves it to the database,
+ * and redirects to the new campground's detail page.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 module.exports.createCampground = async (req, res, next) => {
   const campground = new Campground(req.body.campground);
   campground.images = req.files.map((f) => ({ url: f.path, filename: f.filename }));
@@ -23,9 +33,13 @@ module.exports.createCampground = async (req, res, next) => {
   res.redirect(`/campgrounds/${campground._id}`);
 };
 
-/** Finding Campground, populating with reviews and author of review.
- *  Then populating author of created Campground.
- *  Rednering the found Campground
+/**
+ * Finds a campground by ID, populates reviews and author,
+ * and renders the campground detail page.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
 module.exports.showCampground = async (req, res, next) => {
   const { id } = req.params;
@@ -44,7 +58,16 @@ module.exports.showCampground = async (req, res, next) => {
   res.render('campgrounds/show', { campground });
 };
 
-/** Finding Campground by id then rendering the found Campgrond */
+/**
+ * Renders the edit form for an existing campground.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ *
+ * @returns {Promise} - Renders the edit form for the campground if found,
+ * otherwise flashes an error and redirects to /campgrounds
+ */
 module.exports.renderEditForm = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campground.findById(id);
@@ -55,8 +78,15 @@ module.exports.renderEditForm = async (req, res, next) => {
   res.render('campgrounds/edit', { campground });
 };
 
-/** Finding and updating Campground with the Campground data in the body.
- * Then redirecting to the updated Campground.
+/**
+ * Updates a campground by ID.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ *
+ * Finds the campground by ID, updates it with the data from req.body.campground,
+ * flashes a success message, and redirects to the campground detail page.
  */
 module.exports.updateCampground = async (req, res, next) => {
   const { id } = req.params;
@@ -65,8 +95,14 @@ module.exports.updateCampground = async (req, res, next) => {
   res.redirect(`/campgrounds/${campground._id}`);
 };
 
-/** Finding Campground by id and deleting the Campground.
- *  Success message is shown then redirecting to the /campgrounds.
+/**
+ * Deletes a campground by ID.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ *
+ * Finds the campground by ID and deletes it.
+ * Flashes a success message and redirects to /campgrounds.
  */
 module.exports.deleteCampground = async (req, res) => {
   const { id } = req.params;

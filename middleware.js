@@ -3,7 +3,11 @@ const ExpressError = require('./utils/ExpressError');
 const Campground = require('./models/campground');
 const Review = require('./models/review');
 
-// Middleware functions to check if someone is logged in
+/**
+ * Middleware to check if a user is logged in.
+ * If not logged in, saves url to return to after login and
+ * redirects to /login with a flash message.
+ */
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
     req.session.returnTo = req.originalUrl;
@@ -13,7 +17,10 @@ module.exports.isLoggedIn = (req, res, next) => {
   next();
 };
 
-// Middleware functions to validate the incomming data form req.body
+/**
+ * Middleware to validate review data from req.body using Joi schema.
+ * Throws ExpressError if Joi validation fails.
+ */
 module.exports.validateReview = (req, res, next) => {
   const { error } = reviewValidate.validate(req.body);
   if (error) {
@@ -29,7 +36,10 @@ module.exports.storeReturnTo = (req, res, next) => {
   next();
 };
 
-// Middleware functions to validate campgrounds form req.body
+/**
+ * Middleware to validate campground data from req.body using Joi schema.
+ * Throws ExpressError if Joi validation fails.
+ */
 module.exports.validateCampground = (req, res, next) => {
   const { error } = campgroundValidate.validate(req.body);
   if (error) {
@@ -37,7 +47,10 @@ module.exports.validateCampground = (req, res, next) => {
   } else next();
 };
 
-// Middleware functions to check if user is same as author of a campground
+/**
+ * Middleware to check if user is author of a campground.
+ * If user is not the author, flash error and redirect to campground page.
+ */
 module.exports.isAuthor = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campground.findById(id);
@@ -48,7 +61,10 @@ module.exports.isAuthor = async (req, res, next) => {
   next();
 };
 
-// Middleware functions to check if user is same as author of a review
+/**
+ * Middleware to check if user is author of a review.
+ * If user is not the author, flash error and redirect to campground page.
+ */
 module.exports.isReviewAuthor = async (req, res, next) => {
   const { id, reviewId } = req.params;
   const review = await Review.findById(reviewId);
@@ -58,4 +74,3 @@ module.exports.isReviewAuthor = async (req, res, next) => {
   }
   next();
 };
-// module.exports = isLoggedIn;

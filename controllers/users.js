@@ -1,17 +1,24 @@
 const User = require('../models/user');
 
-/** Render register page */
+/**
+ * Renders the register page.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
 module.exports.renderRegisterPage = (req, res) => {
   res.render('users/register');
 };
 
-/** First we try, to save varibles from body of the request.
- *  Then we create a new user with some of the varibales.
- *  With the Psssport module we register (encrypt user and password).
- *  The we login (also with Passpoert) the registered user.
- *  If no errors occur the we fash succes message and redirectto /campgrounds
- *  If an error occurs, we catch it in the catch block, flash the error message and
- *  redirect to the /register page.
+/**
+ * Creates a new user account.
+ *
+ * Extracts the email, username, and password from the request body.
+ * Creates a new User instance with email and username.
+ * Registers the user with the given password using User.register.
+ * Logs the user in with req.login.
+ * If successful, flashes a 'success' message and redirects to /campgrounds.
+ * If there is an error, flashes the error message and redirects to /register.
  */
 module.exports.createUser = async (req, res, next) => {
   try {
@@ -29,12 +36,23 @@ module.exports.createUser = async (req, res, next) => {
   }
 };
 
-/** Render login page */
+/**
+ * Renders the login page.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
 module.exports.renderLoginPage = (req, res) => {
   res.render('users/login');
 };
 
-/** redirect user to last known url or just /campgrounds */
+/**
+ * Logs the user in.
+ *
+ * Flashes a 'success' message.
+ * Redirects the user to res.locals.returnTo if it exists, otherwise to /campgrounds.
+ * Deletes req.session.returnTo after using it.
+ */
 module.exports.loginUser =
   /** 3# now we can use res.locals.returnTo to redirect the user after login */
   (req, res) => {
@@ -44,8 +62,10 @@ module.exports.loginUser =
     res.redirect(redirectUrl);
   };
 
-/** Here we call the .logout method form Passport and simply check if there is an error.
- *  If no error occurs then we flash a success message and redirect to /campgrounds.
+/**
+ * Logs the user out by calling req.logout.
+ * Flashes a 'success' message.
+ * Redirects to /campgrounds after logout.
  */
 module.exports.logoutUser = (req, res, next) => {
   req.logout(function (err) {
