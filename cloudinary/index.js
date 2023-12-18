@@ -7,6 +7,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET_API_KEY,
 });
 
+/**
+ * Configures Cloudinary storage for uploading images to Cloudinary.
+ * Creates a new CloudinaryStorage instance, passing the cloudinary
+ * client and configuration parameters for saving images to the
+ * 'uploads' folder and allowing 'jpg', 'png', 'jpeg' formats.
+ */
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
