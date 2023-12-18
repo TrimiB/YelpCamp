@@ -85,12 +85,16 @@ module.exports.renderEditForm = async (req, res, next) => {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  *
- * Finds the campground by ID, updates it with the data from req.body.campground,
- * flashes a success message, and redirects to the campground detail page.
+ * Finds the campground by ID, updates it with data from the request,
+ * saves any uploaded images, saves the campground, flashes a success message,
+ * and redirects to the campground detail page.
  */
 module.exports.updateCampground = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+  const images = req.files.map((f) => ({ url: f.path, filename: f.filename }));
+  campground.images.push(...images);
+  await campground.save();
   req.flash('success', 'Successfully updated campground!');
   res.redirect(`/campgrounds/${campground._id}`);
 };

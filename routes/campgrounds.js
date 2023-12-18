@@ -30,7 +30,13 @@ router
   // Get specific campground
   .get(catchAsync(campground.showCampground))
   // Update Campground
-  .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campground.updateCampground))
+  .put(
+    isLoggedIn,
+    isAuthor,
+    upload.array('image', 4),
+    validateCampground,
+    catchAsync(campground.updateCampground)
+  )
   // Delete Campground
   .delete(isLoggedIn, isAuthor, catchAsync(campground.deleteCampground));
 
