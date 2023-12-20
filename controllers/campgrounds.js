@@ -1,4 +1,5 @@
 const Campground = require('../models/campground');
+const { cloudinary } = require('../cloudinary/index');
 
 /**
  * Finds all campgrounds from the database, renders the campground index page.
@@ -81,19 +82,30 @@ module.exports.renderEditForm = async (req, res, next) => {
 /**
  * Updates a campground by ID.
  *
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- *
- * Finds the campground by ID, updates it with data from the request,
- * saves any uploaded images, saves the campground, flashes a success message,
- * and redirects to the campground detail page.
+ * Finds the campground by ID, updates it with the data from the request body,
+ * handles uploading new images and deleting old images, saves the campground,
+ * flashes a success message, and redirects to the campground detail page.
  */
 module.exports.updateCampground = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
   const images = req.files.map((f) => ({ url: f.path, filename: f.filename }));
   campground.images.push(...images);
+
+  /**
+   * Deletes images from the campground if requested in the request body.
+   *
+   * Loops through the filenames in req.body.deleteImages and deletes each image from
+   * Cloudinary. Then updates the campground to pull (remove) any images that match
+   * the deleted filenames in our 'mongo' database.
+   */
+  if (req.body.deleteImages) {
+    for (let fileneame of req.body.deleteImages) {
+      await cloudinary.uploader.destroy(fileneame);
+    }
+    await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } });
+  }
+
   await campground.save();
   req.flash('success', 'Successfully updated campground!');
   res.redirect(`/campgrounds/${campground._id}`);

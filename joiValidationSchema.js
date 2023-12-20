@@ -19,6 +19,7 @@ module.exports.campgroundValidate = Joi.object({
     location: Joi.string().required(),
     description: Joi.string().required(),
   }).required(),
+  deleteImages: Joi.array(),
 });
 
 /**
