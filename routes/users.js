@@ -6,10 +6,9 @@ const passport = require('passport');
 
 const catchAsync = require('../utils/catchAsync');
 const users = require('../controllers/users');
-const User = require('../models/user');
 
 router
-  .route('/')
+  .route('/register')
   /** Get register page */
   .get(users.renderRegisterPage)
   /** Create new user */
