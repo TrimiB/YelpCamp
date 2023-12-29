@@ -12,6 +12,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const mongoSanitize = require('express-mongo-sanitize');
 
 // Error Middleware
 const ExpressError = require('./utils/ExpressError');
@@ -53,6 +54,8 @@ app.use(methodOverride('_method'));
 app.use(morgan('dev'));
 // for serving static files from the public dir. (frontend files)
 app.use(express.static(path.join(__dirname, 'public')));
+// For sanitizing mongoDB queries
+app.use(mongoSanitize());
 
 // created as session "cookie".
 const sessionCongif = {
