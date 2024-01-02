@@ -13,6 +13,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 // Error Middleware
 const ExpressError = require('./utils/ExpressError');
@@ -74,6 +75,51 @@ app.use(session(sessionCongif));
 
 // Works only in combination with session ^
 app.use(flash());
+app.use(helmet());
+
+/**
+ * Configures Content Security Policy headers to allow
+ * scripts, styles, images, etc. from specific sources.
+ *
+ * Defines allowed sources for each directive like
+ * script-src, style-src, img-src etc. Uses helmet
+ * middleware to set the Content-Security-Policy
+ * header.
+ */
+const scriptSrcUrls = [
+  'https://stackpath.bootstrapcdn.com/',
+  'https://kit.fontawesome.com/',
+  'https://cdnjs.cloudflare.com/',
+  'https://cdn.jsdelivr.net',
+];
+const styleSrcUrls = [
+  'https://cdn.jsdelivr.net',
+  'https://kit-free.fontawesome.com/',
+  'https://fonts.googleapis.com/',
+  'https://use.fontawesome.com/',
+];
+const connectSrcUrls = [];
+const fontSrcUrls = [];
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", 'blob:'],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        'blob:',
+        'data:',
+        'https://res.cloudinary.com/dnmj2nadp/',
+        'https://images.unsplash.com/',
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
