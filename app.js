@@ -9,6 +9,7 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -28,7 +29,9 @@ const User = require('./models/user');
 
 mongoose.set('strictQuery', false);
 
-mongoose.connect('mongodb://localhost:27017/yelpCamp', {
+// const dbUrl = process.env.DATABASE_URL.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+const dbUrl = 'mongodb://localhost:27017/yelpCamp';
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -58,8 +61,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 // For sanitizing mongoDB queries
 app.use(mongoSanitize());
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  touchAfter: 24 * 60 * 60, // 24 hours
+});
+
+store.on('error', (err) => console.log('SESSION STORE ERROR:', err));
+
 // created as session "cookie".
 const sessionCongif = {
+  store,
   name: 'session',
   secret: 'thisshouldbeabettersecret',
   resave: false,
