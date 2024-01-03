@@ -29,8 +29,8 @@ const User = require('./models/user');
 
 mongoose.set('strictQuery', false);
 
-// const dbUrl = process.env.DATABASE_URL.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
-const dbUrl = 'mongodb://localhost:27017/yelpCamp';
+const dbUrl = process.env.DATABASE_URL.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+// const dbUrl = 'mongodb://localhost:27017/yelpCamp';
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -170,6 +170,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+const port = process.env.PORT || 3000;
 app.listen(3000, () => {
-  console.log('Listening on port 3000');
+  console.log(`Listening on port ${port}`);
 });
